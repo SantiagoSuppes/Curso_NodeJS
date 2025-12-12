@@ -1,0 +1,16 @@
+extends ../layout
+
+block content
+    h1.font-bold.text-5xl.text-center.my-10 Bienes 
+        span.font-normal Raíces
+
+    h2.text-3xl.font-bold.mb-6.text-center= pag
+
+
+    div(class='flex flex-col justify-center bg-white shadow-md rounded-lg py-8 px-4 max-w-md mx-auto') 
+        p(class= error ? 'bg-red-300 text-red-800' : 'bg-green-300 text-green-800').font-bold.text-center.py-2.px-5.rounded-lg.w-full= mensaje
+
+        if (error)
+            a(href='/auth/registro', class='w-1/2 self-center bg-blue-200 hover:bg-blue-300 font-bold py-1 px-2 rounded-lg text-center mt-4') Volver al registro
+        else
+            a(href='/auth/login', class='w-1/2 self-center bg-blue-200 hover:bg-blue-300 font-bold py-1 px-2 rounded-lg text-center mt-4') Iniciar sesión
