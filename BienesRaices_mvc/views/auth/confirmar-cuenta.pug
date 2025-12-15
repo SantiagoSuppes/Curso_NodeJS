@@ -11,6 +11,6 @@ block content
         p(class= error ? 'bg-red-300 text-red-800' : 'bg-green-300 text-green-800').font-bold.text-center.py-2.px-5.rounded-lg.w-full= mensaje
 
         if (error)
-            a(href='/auth/registro', class='w-1/2 self-center bg-blue-200 hover:bg-blue-300 font-bold py-1 px-2 rounded-lg text-center mt-4') Volver al registro
+            a(href='/auth/registro', class='w-1/2 self-center bg-blue-200 hover:bg-blue-300 font-bold py-1 px-2 rounded-lg text-center mt-4') Registrarse
         else
             a(href='/auth/login', class='w-1/2 self-center bg-blue-200 hover:bg-blue-300 font-bold py-1 px-2 rounded-lg text-center mt-4') Iniciar sesión

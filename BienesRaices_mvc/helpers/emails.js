@@ -23,4 +23,28 @@ const emailRegistro = async (datos) => {
     console.log("Mensaje enviado: %s", info.messageId);
 }
 
-export { emailRegistro };
+const emailOlvidePassword = async (datos) => {
+  const { nombre, email, token } = datos;
+    const transport = nodemailer.createTransport({
+    host: process.env.mailtest_host,
+    port: process.env.mailtest_port,
+    auth: {
+        user: process.env.mailtest_user,
+        pass: process.env.mailtest_pass
+    }
+  });
+    const info = await transport.sendMail({
+    from: '"Bienes Raíces" <no-reply@bienesraices.com>',
+    to: email,
+    subject: "Recupera tu acceso a Bienes Raíces",
+    text: "Recupera tu acceso a Bienes Raíces",
+    html: `<p>Hola ${nombre}, has solicitado recuperar tu acceso a Bienes Raíces.</p>
+           <p>Para restablecer tu contraseña, haz clic en el siguiente enlace:</p>
+           <a href="${process.env.backend_url}:${process.env.port ?? 3000}/auth/olvide-password/${token}">Restablecer Contraseña</a>
+           <p>Si tú no solicitaste este cambio, puedes ignorar este mensaje.</p>`
+    });
+    console.log("Mensaje enviado: %s", info.messageId);
+}
+
+
+export { emailRegistro, emailOlvidePassword };

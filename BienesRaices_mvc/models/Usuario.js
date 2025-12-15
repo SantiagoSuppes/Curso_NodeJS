@@ -38,6 +38,12 @@ const Usuario = db.define('Usuario', {
         beforeCreate: async (usuario) => {
             const salt = bcrypt.genSaltSync();
             usuario.password = bcrypt.hashSync(usuario.password, salt);
+        },
+        beforeUpdate: async (usuario) => {
+            if (usuario.changed('password')) {
+                const salt = bcrypt.genSaltSync();
+                usuario.password = bcrypt.hashSync(usuario.password, salt);
+            }
         }
     }
 });
