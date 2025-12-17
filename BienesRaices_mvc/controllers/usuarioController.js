@@ -1,13 +1,63 @@
 import { check, validationResult } from 'express-validator';
 import Usuario from '../models/Usuario.js';
-import { generateToken } from '../helpers/tokens.js';
+import { generateToken, generateJWT } from '../helpers/tokens.js';
 import { emailRegistro, emailOlvidePassword } from '../helpers/emails.js';
-import e from 'express';
 
 const formularioLogin = (req, res) => {
   res.render('auth/login', {
-    pag: 'Iniciar Sesión'
+    pag: 'Iniciar Sesión',
+    csrfToken: req.csrfToken()
   });
+}
+
+const autenticarUsuario = async (req, res) => {
+  await check('email').isEmail().withMessage('Email vacío o no válido').run(req);
+  await check('password').notEmpty().withMessage('La contraseña es obligatoria').run(req);
+
+  let errores = validationResult(req);
+
+  if (!errores.isEmpty()) {
+    return res.render('auth/login', {
+      pag: 'Iniciar Sesión',
+      errores: errores.array(),
+      csrfToken: req.csrfToken()
+    });
+  }
+
+  const { email, password } = req.body;
+  const usuario = await Usuario.findOne({ where: { email } });
+
+  if (!usuario) {
+    return res.render('auth/login', {
+      pag: 'Iniciar Sesión',
+      errores: [{ msg: 'El usuario no existe' }],
+      csrfToken: req.csrfToken()
+    });
+  }
+
+  if (!usuario.confirmado) {
+    return res.render('auth/login', {
+      pag: 'Iniciar Sesión',
+      errores: [{ msg: 'Tu cuenta no ha sido confirmada' }],
+      csrfToken: req.csrfToken()
+    });
+  }
+
+  if (!usuario.verificarPassword(password)) {
+    return res.render('auth/login', {
+      pag: 'Iniciar Sesión',
+      errores: [{ msg: 'La contraseña es incorrecta' }],
+      csrfToken: req.csrfToken()
+    });
+  }
+
+  const jwt = generateJWT({ id: usuario.id, nombre: usuario.nombre });
+  
+  return res.cookie('_jwt', jwt, {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'strict'
+  }).redirect('/mis-propiedades');
 }
 
 const formularioRegistro = (req, res) => {
@@ -159,6 +209,7 @@ const comprobarToken = async (req, res) => {
 
 const nuevoPassword = async (req, res) => {
   await check('password').isLength({ min: 6 }).withMessage('La contraseña debe ser de al menos 6 caracteres').run(req);
+  await check('repetir_password').equals(req.body.password).withMessage('Las contraseñas no coinciden').run(req);
 
   let errores = validationResult(req);
 
@@ -192,5 +243,6 @@ export {
   confirmarCuenta,
   resetPassword,
   comprobarToken,
-  nuevoPassword
+  nuevoPassword,
+  autenticarUsuario
 };
